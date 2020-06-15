@@ -5,24 +5,22 @@ const changeBrowserZoom = require('../../functions/action/changeBrowserZoom');
 const clearInputField = require('../../functions/action/clearInputField');
 const clickElementInsideParentElement = require('../../functions/action/clickElementInsideParentElement');
 const clickToCondition = require('../../functions/action/clickToCondition');
-const closeLastOpenedWindow = require('../../functions/action/closeLastOpenedWindow');
 const deleteCookie = require('../../functions/action/deleteCookie');
 const browserAction = require('../../functions/action/browserAction');
 const dragElement = require('../../functions/action/dragElement');
-const focusLastOpenedWindow = require('../../functions/action/focusLastOpenedWindow');
+const switchToOrCloseLastOpenedWindow = require('../../functions/action/switchToOrCloseLastOpenedWindow');
 const handleModal = require('../../functions/action/handleModal');
 const moveToElement = require('../../functions/action/moveToElement');
 const pause = require('../../functions/action/pause');
 const pressKeyTimes = require('../../functions/action/pressKeyTimes');
+const clickMouseKeyTimes = require('../../functions/action/clickMouseKeyTimes');
 const scroll = require('../../functions/action/scroll');
 const selectOption = require('../../functions/action/selectOption');
 const selectOptionByIndex = require('../../functions/action/selectOptionByIndex');
 const selectFileFromDownloadFolder = require('../../functions/action/selectFileFromDownloadFolder');
 const setCookie = require('../../functions/action/setCookie');
-const setInputField = require('../../functions/action/setInputField');
 const setInputFieldWithEnvVars = require('../../functions/action/setInputFieldWithEnvVars');
 const setPromptText = require('../../functions/action/setPromptText');
-const submitForm = require('../../functions/action/submitForm');
 const switchIframe = require('../../functions/action/switchIframe');
 const typeText = require('../../functions/action/typeText');
 const waitAndActOnElement = require('../../functions/action/waitAndActOnElement');
@@ -50,12 +48,7 @@ When(
 );
 
 When(
-    /^I (add|set) "([^"]*)?" to the inputfield "([^"]*)?"$/,
-    setInputField
-);
-
-When(
-    /^I (add|set) env var "([^"]*)?" to the inputfield "([^"]*)?"$/,
+    /^I (add|set)(?: (env var))? "([^"]*)?" to the inputfield "([^"]*)?"$/,
     setInputFieldWithEnvVars
 );
 
@@ -67,11 +60,6 @@ When(
 When(
     /^I drag element "([^"]*)?" to element "([^"]*)?"$/,
     dragElement
-);
-
-When(
-    /^I submit the form "([^"]*)?"$/,
-    submitForm
 );
 
 When(
@@ -100,6 +88,11 @@ When(
 );
 
 When(
+    /^I (double )?click the (left|middle|right) mouse key(?: (\d+) time(?:s)?)?$/,
+    clickMouseKeyTimes
+);
+
+When(
     /^I type the "(.*)?" string to the screen$/,
     typeText
 );
@@ -120,13 +113,8 @@ When(
 );
 
 When(
-    /^I close the last opened (window|tab)$/,
-    closeLastOpenedWindow
-);
-
-When(
-    /^I focus the last opened (window|tab)$/,
-    focusLastOpenedWindow
+    /^I (switch to|close) the last opened (?:window|tab)$/,
+    switchToOrCloseLastOpenedWindow
 );
 
 When(
@@ -165,7 +153,7 @@ When(
 );
 
 When(
-    /^I wait on element "([^"]*)?"(?: for (\d+)ms)*(?: to( not)* (be checked|be enabled|be selected|be visible|contain a text|contain a value|exist))*$/,
+    /^I wait on element "([^"]*)?"(?: for (\d+)ms)*(?: to( not)* (exist|be enabled|be visible|be clickable|be selected|be checked|contain a text|contain a value))*$/,
     {
         timeout: 3600*1000,
         wrapperOptions: {

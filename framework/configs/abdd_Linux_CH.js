@@ -8,10 +8,16 @@ const { hooks } = require(`${FrameworkPath}/framework/support/module_hooks.js`);
 const selenium_standalone_config = require(FrameworkPath + '/framework/configs/selenium-standalone_config.js');
 const myCombinedStepPath = ['support/steps/*.js', ProjectPath + '/project/support/steps/**/*.js', FrameworkPath + '/framework/support/steps/**/*.js'];
 const myDownloadPathLocal = process.env.DownloadPathLocal || '/tmp/download_' + process.env.DISPLAY.substr(1);
+const myParallelRunPort = 4444 + parseInt(process.env.DISPLAY.slice(-2).replace(':', ''));
 
 // for Linux chrome
 const myChromeProfilePath = process.env.myChromeProfilePath || '/tmp/chrome_profile_' + process.env.DISPLAY.substr(1);
 fs.existsSync(myChromeProfilePath) || fs.mkdirSync(myChromeProfilePath);
+const myPreference_json = '{"download":{"default_directory":"' + myDownloadPathLocal + '","directory_upgrade":true},"savefile":{"default_directory":"' + myDownloadPathLocal + '"}}';
+fs.existsSync(myChromeProfilePath) || fs.mkdirSync(myChromeProfilePath);
+fs.existsSync(myChromeProfilePath + '/Default') || fs.mkdirSync(myChromeProfilePath + '/Default');
+fs.writeFileSync(myChromeProfilePath + '/Default/Preferences', myPreference_json);
+
 // const myBrowserProxySetting = (process.env.http_proxy) ? "--proxy-server=" + process.env.http_proxy : "--no-proxy-server";
 
 exports.config = {
@@ -63,7 +69,7 @@ exports.config = {
     // and 30 processes will get spawned. The property handles how many capabilities
     // from the same test should run tests.
     //
-    maxInstances: 128,
+    maxInstances: 1,
     //
     // If you have trouble getting all important capabilities together, check out the
     // Sauce Labs platform configurator - a great tool to configure your capabilities:
@@ -90,21 +96,24 @@ exports.config = {
                 '--disable-gpu',
                 '--disable-setuid-sandbox',
                 '--disable-dev-shm-usage',
+                // '--ignore-certificate-errors'
             ],
-            prefs: {
-              'credentials_enable_service': false,
-              'profile': {
-                'password_manager_enabled': false
-              },
-              'download': {
-                'default_directory': myDownloadPathLocal,
-                'directory_upgrade': true
-              },
-              'savefile': {
-                'default_directory': myDownloadPathLocal
-              }
-            }
-        },    
+            // prefs: {
+            //   'credentials_enable_service': false,
+            //   'profile': {
+            //     'password_manager_enabled': false
+            //   },
+            //   'download': {
+            //     'default_directory': myDownloadPathLocal,
+            //     'directory_upgrade': true
+            //   },
+            //   'savefile': {
+            //     'default_directory': myDownloadPathLocal
+            //   }
+            // }
+        },
+        port: myParallelRunPort,
+        setAcceptInsecureCerts: true
       }
     ],
     //
@@ -161,7 +170,18 @@ exports.config = {
     // Services take over a specific job you don't want to take care of. They enhance
     // your test setup with almost no effort. Unlike plugins, they don't add new
     // commands. Instead, they hook themselves up into the test process.
-    // services: [],
+    services: [
+        ['selenium-standalone', {
+            logPath: 'logs',
+            installArgs: {
+                drivers: selenium_standalone_config.drivers,
+            },
+            args: {
+                drivers: selenium_standalone_config.drivers,
+                seleniumArgs: ['-host', '127.0.0.1','-port', `${myParallelRunPort}`]
+            },
+        }]
+    ],
     //
     // Framework you want to run your specs with.
     // The following are supported: Mocha, Jasmine, and Cucumber
@@ -226,6 +246,7 @@ exports.config = {
         // <number> timeout for step definitions
         timeout: 20000,
     },
+    // automationProtocol: 'devtools',
     ...hooks,
 };
 

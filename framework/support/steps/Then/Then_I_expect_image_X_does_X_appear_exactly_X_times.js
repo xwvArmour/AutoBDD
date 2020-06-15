@@ -1,5 +1,7 @@
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 const parseExpectedText = require(FrameworkPath + '/framework/functions/common/parseExpectedText');
+const screen_session = require(FrameworkPath + '/framework/libs/screen_session');
+const fs_session = require(FrameworkPath + '/framework/libs/fs_session');
 const { Then } = require('cucumber');
 Then(
     /^I expect (?:that )?the "([^"]*)?" image does( not)* appear(?: (exactly|not exactly|more than|no more than|less than|no less than) (\d+) time(?:s)?)?$/,
@@ -16,11 +18,11 @@ Then(
       if (imageName && imageName == 'last-seen') {
         screenFindResult = this.lastSeen_screenFindResult;
       } else {
-        [imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText] = this.fs_session.getTestImageParms(parsedImageName);
-        imagePathList = this.fs_session.globalSearchImageList(__dirname, imageFileName, imageFileExt);
+        [imageFileName, imageFileExt, imageSimilarity, maxSimilarityOrText] = fs_session.getTestImageParms(parsedImageName);
+        imagePathList = fs_session.globalSearchImageList(__dirname, imageFileName, imageFileExt);
         expectedImageSimilarity = this.lastSeen_screenFindResult && this.lastSeen_screenFindResult.name == parsedImageName ? (this.lastSeen_screenFindResult.score - 0.000001) : imageSimilarity;
         expectedImageNumberMax = myExpectedNumber;
-        screenFindResult = JSON.parse(this.screen_session.screenFindAllImages(imagePathList, expectedImageSimilarity, maxSimilarityOrText, null, null, expectedImageNumberMax));  
+        screenFindResult = JSON.parse(screen_session.screenFindAllImages(imagePathList, expectedImageSimilarity, maxSimilarityOrText, null, null, expectedImageNumberMax));  
       }
       this.lastSeen_screenFindResult = screenFindResult;
       if (screenFindResult.length == 0) {

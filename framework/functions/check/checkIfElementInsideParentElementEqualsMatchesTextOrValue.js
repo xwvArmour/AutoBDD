@@ -16,12 +16,11 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
     const targetElementIndexInt = (targetElementIndex) ? parseInt(targetElementIndex) - 1 : 0;
     const parentElementIndexInt = (parentElementIndex) ? parseInt(parentElementIndex) - 1 : 0;
     
-    var targetElementId;
+    var targetElementIdElement;
     if (parentElement) {
-        const parentElementId = browser.$$(parentElement)[parentElementIndexInt].elementId;
-        targetElementId = browser.elementIdElements(parentElementId, targetElement).value[targetElementIndexInt].ELEMENT;
+        targetElementIdElement = browser.$$(parentElement)[parentElementIndexInt].$$(targetElement)[targetElementIndexInt];
     } else {
-        targetElementId = browser.$$(targetElement)[targetElementIndexInt].elementId;
+        targetElementIdElement = browser.$$(targetElement)[targetElementIndexInt];
     }
 
     /**
@@ -50,15 +49,18 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
     var retrivedValue;
     switch (targetType) {
         case 'value':
-            retrivedValue = browser.elementIdAttribute(targetElementId, targetType).value;
+            if (browser.$(targetElementIdElement).getTagName() == 'input') {
+                retrivedValue = browser.$(targetElementIdElement).getValue();
+            } else {
+                retrivedValue = browser.getElementAttribute(targetElementIdElement, targetType);
+            }
             break;
         case 'text':
         default:
-            retrivedValue = browser.getElementText(targetElementId);
+            retrivedValue = browser.$(targetElementIdElement).getText();
     }
 
     retrivedValue = retrivedValue.replace(/[^\x00-\x7F]/g, '');
-    const myRegex = RegExp(myExpectedText);
 
     if (boolFalseCase) {
         switch (action) {
@@ -80,8 +82,8 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
                 break;
             case 'match':
             case 'matches':
-                expect(myRegex.test(retrivedValue)).not.toEqual(
-                    true,
+                expect(retrivedValue).not.toMatch(
+                    RegExp(myExpectedText),
                     `target element "${targetElement}" inside parent element "${parentElement}" should not match ${targetType} ` +
                     `"${myExpectedText}"`
                 );        
@@ -109,8 +111,8 @@ module.exports = (targetElementIndex, targetElement, parentElementIndex, parentE
                 break;
             case 'match':
             case 'matches':
-                expect(myRegex.test(retrivedValue)).toEqual(
-                    true,
+                expect(retrivedValue).toMatch(
+                    RegExp(myExpectedText),
                     `target element "${targetElement}" inside parent element "${parentElement}" should match ${targetType} ` +
                     `"${myExpectedText}"`
                 );        
