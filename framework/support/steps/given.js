@@ -5,6 +5,7 @@ const assignValueOfElementInsideParentElementAs = require('../../functions/actio
 const bypassChromeSafetyWarning = require('../../functions/action/bypassChromeSafetyWarning');
 const checkContainsAnyTextOrValue = require('../../functions/check/checkContainsAnyTextOrValue');
 const checkElementTextValueIsEmpty = require('../../functions/check/checkElementTextValueIsEmpty');
+const checkCondition = require('../../functions/check/checkCondition');
 const checkCookieContent = require('../../functions/check/checkCookieContent');
 const checkCookieExists = require('../../functions/check/checkCookieExists');
 const checkDimension = require('../../functions/check/checkDimension');
@@ -13,14 +14,11 @@ const checkContainsEqualsMatchesTextOrValue = require('../../functions/check/che
 const checkModal = require('../../functions/check/checkModal');
 const checkOffset = require('../../functions/check/checkOffset');
 const checkProperty = require('../../functions/check/checkProperty');
-const checkSelected = require('../../functions/check/checkSelected');
 const checkTitle = require('../../functions/check/checkTitle');
 const checkUrl = require('../../functions/check/checkURL');
 const closeAllButFirstTab = require('../../functions/action/closeAllButFirstTab');
 const compareText = require('../../functions/check/compareText');
 const deleteDownload = require('../../functions/action/deleteDownload');
-const isEnabled = require('../../functions/check/isEnabled');
-const isVisible = require('../../functions/check/isVisible');
 const openTarget = require('../../functions/action/openTarget');
 const resizeScreenSize = require('../../functions/action/resizeScreenSize');
 
@@ -50,18 +48,8 @@ Given(
 );
 
 Given(
-    /^(?:(some|all) of )?the element "([^"]*)?" (is|becomes)( not)* visible$/,
-    isVisible
-);
-
-Given(
-    /^(?:(some|all) of )?the element "([^"]*)?" (is|becomes)( not)* enabled$/,
-    isEnabled
-);
-
-Given(
-    /^the (?:element|checkbox) "([^"]*)?" is( not)* (?:checked|selected)$/,
-    checkSelected
+    /^(?:(some|all) of )?the (?:element|checkbox) "([^"]*)?" (is)( not)* (existing|displayed|visible|focused|enabled|clickable|selected|checked)$/,
+    checkCondition
 );
 
 Given(
@@ -127,7 +115,7 @@ Given(
 );
 
 Given(
-    /^I have a screen that is ([\d]+) by ([\d]+) pixels$/,
+    /^I resize browser window to ([\d]+) by ([\d]+) pixels$/,
     resizeScreenSize
 );
 
