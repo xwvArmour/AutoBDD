@@ -1,14 +1,15 @@
 const FrameworkPath = process.env.FrameworkPath;
-const ProjectPath = process.env.PROJECTRUNPATH
+const ProjectPath = process.env.PROJECTRUNPATH;
+const TestDir = process.env.TestDir;
 const myDISPLAYSIZE = process.env.DISPLAYSIZE;
-const myREPORTDIR = process.env.REPORTDIR || '.';
+const myREPORTDIR = process.env.REPORTDIR || `${process.env.PROJECTRUNPATH}/test-results`;
 const fs = require('fs');
 const path = require('path');
 const { hooks } = require(`${FrameworkPath}/framework/support/module_hooks.js`);
 const selenium_standalone_config = require(FrameworkPath + '/framework/configs/selenium-standalone_config.js');
-const myCombinedStepPath = [FrameworkPath + '/framework/support/steps/**/*.js',
-                            ProjectPath + '/project/support/steps/**/*.js',
-                            'support/steps/*.js'];
+const myCombinedStepPath = [`${FrameworkPath}/framework/support/steps/**/*.js`,
+                            `${ProjectPath}/${TestDir}/support/steps/**/*.js`,
+                            `support/steps/*.js`];
 const myDownloadPathLocal = process.env.DownloadPathLocal || '/tmp/download_' + process.env.DISPLAY.substr(1);
 const myParallelRunPort = 4444 + parseInt(process.env.DISPLAY.slice(-3).replace(':', ''));
 
@@ -175,6 +176,7 @@ exports.config = {
     services: [
         ['selenium-standalone', {
             logPath: 'logs',
+            skipSeleniumInstall: true,
             installArgs: {
                 drivers: selenium_standalone_config.drivers,
             },
@@ -202,14 +204,13 @@ exports.config = {
     // Test reporter for stdout.
     // The only one supported by default is 'dot'
     // see also: https://webdriver.io/docs/dot-reporter.html
-    reporters: ['spec',
-                [ 'cucumberjs-json', {
-                    jsonFolder: `${myREPORTDIR}/.tmp`,
-                    language: 'en'}
-                ]
+    reporters: [
+        'spec',
+        [ 'cucumberjs-json', {
+            jsonFolder: `${myREPORTDIR}`,
+            language: 'en'
+        }]
     ],
-    //
-    // If you are using Cucumber you need to specify the location of your step definitions.
     cucumberOpts: {
         // <boolean> show full backtrace for errors
         backtrace: false,

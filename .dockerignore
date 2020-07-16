@@ -1,5 +1,12 @@
 **/.git
 **/node_modules
-**/bdd_reports
+**/test-results
 test-projects/*
-!test-projects/simple-test/
+!test-projects/autobdd-test/
+logs/
+tmp/
+.tmp/
+test-results/
+__pycache__/
+.screenshots/
+videos/

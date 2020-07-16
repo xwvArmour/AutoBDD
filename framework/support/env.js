@@ -6,7 +6,7 @@ process.env.BROWSER = process.env.BROWSER || 'CH';
 process.env.DISPLAYSIZE = process.env.DISPLAYSIZE || execSync(cmd_get_screensize).toString('utf8').trim();
 process.env.FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 process.env.StepTimeoutInMS = process.env.StepTimeoutInMS || 60000;
-process.env.REPORTDIR = process.env.REPORTDIR || '.';
+process.env.REPORTDIR = process.env.REPORTDIR || `${process.env.PROJECTRUNPATH}/test-results`;
 process.env.RELATIVEREPORTDIR = process.env.RELATIVEREPORTDIR || '.';
 process.env.MODULEPATH = process.env.MODULEPATH || '';
 process.env.DownloadPathLocal = '/tmp/download_' + process.env.DISPLAY.substr(1);
@@ -67,7 +67,10 @@ if (process.env.PLATFORM == 'Linux') {
         break;
       case / 83\./.test(process.env.chromeVersion):
         process.env.chromeDriverVersion = '83.0.4103.39';
-        break;  
+        break;
+      case / 84\./.test(process.env.chromeVersion):
+        process.env.chromeDriverVersion = '84.0.4147.30';
+        break;    
     }
     console.log('Chrome Driver ' + process.env.chromeDriverVersion)  
   }
