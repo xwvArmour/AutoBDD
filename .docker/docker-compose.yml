@@ -13,7 +13,7 @@ services:
   # main container for build and pull
   autobdd:
     build:
-      context: ${HOME}/${ProjectsBase:-Projects}/AutoBDD
+      context: ${PWD}/..
       dockerfile: .docker/autobdd.dockerfile
       args:
         AutoBDD_Ver: ${AutoBDD_Ver}
@@ -36,7 +36,7 @@ services:
       - "8002:8000"
     environment:
       - USER=${USER}
-      - BDD_PROJECT=${BDD_PROJECT}
+      - ABDD_PROJECT=${ABDD_PROJECT}
       - HOSTOS=${HOSTOS}
       - USERID=${USERID}
       - GROUPID=${GROUPID}
@@ -56,7 +56,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:delegated
     environment:
       - USER=${USER}
-      - BDD_PROJECT=${BDD_PROJECT}
+      - ABDD_PROJECT=${ABDD_PROJECT}
       - HOSTOS=${HOSTOS}
       - USERID=${USERID}
       - GROUPID=${GROUPID}

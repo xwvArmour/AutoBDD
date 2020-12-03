@@ -37,13 +37,19 @@ if [ "$USER" != "root" ]; then
     [ -d "/dev/snd" ] && chgrp -R adm /dev/snd
     mkdir -p /run/sshd
 fi
-# set BDD_PROJECT from .env in .bash_profile
-if [[ ! -z "$BDD_PROJECT" ]]; then
+
+# set ABDD_PROJECT from .env in .bash_profile
+if [[ ! -z "$ABDD_PROJECT" ]]; then
 cat >> $HOME/.bash_profile <<EOL
-    export BDD_PROJECT=$BDD_PROJECT
-    cd test-projects/\$BDD_PROJECT
+    export ABDD_PROJECT=$ABDD_PROJECT
+    cd test-projects/\$ABDD_PROJECT
+    if [[ -x .abdd_startup.sh ]]; then
+        . .abdd_startup.sh
+    fi
+    if [[ ! -z "$ABDD_STARTUP_SCRIPT" ]] && [[ -x "$ABDD_STARTUP_SCRIPT" ]]; then
+        . $ABDD_STARTUP_SCRIPT
+    fi
 EOL
 fi
 
-su $USER -c ". .bash_profile; $@"
-
+sudo -EH -u $USER /bin/bash -c "cd; . .bash_profile; $@"
