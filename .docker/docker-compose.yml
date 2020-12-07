@@ -1,28 +1,39 @@
-# run test with autobdd-run
-# docker-compose run --rm autobdd-run "make test-all"
-#
-# spin up autobdd-dev for test development:
-# docker-compose up -d autobdd-dev
-# docker-compose logs -f autobdd-dev
-# ssh localhost -p 2222
-# vnc localhost:5922
-# 
 version: '3.5'
 services:
 
-  # main container for build and pull
+  # base ubuntu packafges for pre-build
+  autobdd-ubuntu:
+    build:
+      context: ${PWD}/..
+      dockerfile: .docker/autobdd-ubuntu.dockerfile
+      args:
+        AUTOBDD_VERSION: ${AUTOBDD_VERSION}
+    image: "xyteam/autobdd-ubuntu:${AUTOBDD_VERSION}"
+    container_name: autobdd-ubuntu
+
+  # add non-ubuntu packages
+  autobdd-nodejs:
+    build:
+      context: ${PWD}/..
+      dockerfile: .docker/autobdd-nodejs.dockerfile
+      args:
+        AUTOBDD_VERSION: ${AUTOBDD_VERSION}
+    image: "xyteam/autobdd-nodejs:${AUTOBDD_VERSION}"
+    container_name: autobdd-nodejs
+
+  # main container for build and pull/push
   autobdd:
     build:
       context: ${PWD}/..
-      dockerfile: .docker/autobdd.dockerfile
+      dockerfile: .docker/autobdd-image.dockerfile
       args:
-        AutoBDD_Ver: ${AutoBDD_Ver}
-    image: "xyteam/autobdd:${AutoBDD_Ver}"
+        AUTOBDD_VERSION: ${AUTOBDD_VERSION}
+    image: "xyteam/autobdd:${AUTOBDD_VERSION}"
     container_name: autobdd
 
   # dev container for developing autobdd test
   autobdd-dev:
-    image: "xyteam/autobdd:${AutoBDD_Ver}"
+    image: "xyteam/autobdd:${AUTOBDD_VERSION}"
     container_name: autobdd-dev
     shm_size: 1536M
     user: root
@@ -47,7 +58,7 @@ services:
 
   # run container for running autobdd test
   autobdd-run:
-    image: "xyteam/autobdd:${AutoBDD_Ver}"
+    image: "xyteam/autobdd:${AUTOBDD_VERSION}"
     container_name: autobdd-run
     shm_size: 1536M
     user: root
@@ -61,3 +72,4 @@ services:
       - USERID=${USERID}
       - GROUPID=${GROUPID}
     entrypoint: "/root/autobdd-run.startup.sh"
+

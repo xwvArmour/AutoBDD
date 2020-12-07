@@ -1,11 +1,6 @@
-# build autobdd-run:
-# cd .docker && docker-compose build autobdd-run
-#
-
 FROM ubuntu:20.04
 USER root
 ENV DEBIAN_FRONTEND noninteractive
-ARG AUTOBDD_VERSION
 
 # switch to faster/local ubuntu archive, uncomment a line or add a line
 # RUN sed -i 's#http://archive.ubuntu.com/#http://tw.archive.ubuntu.com/#' /etc/apt/sources.list;
@@ -79,8 +74,7 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
         # fonts
         fonts-wqy-microhei \
         ttf-wqy-zenhei; \
-    # install python2, pip2 and python2 pytest to support py2 test projects
-    # (autobdd does not need py2, this section can be commented out and install inside container later)
+    # install python2, pip2 and python2 pytest to support py2 test projects (autobdd does not need py2, this section can be removed)
     # apt install -q -y --allow-unauthenticated --fix-missing --no-install-recommends -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
         # python2 \
         # libpython2.7-stdlib \
@@ -88,33 +82,8 @@ RUN apt clean -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--forc
     # curl https://bootstrap.pypa.io/get-pip.py --output get-pip.py; \
     # python2 get-pip.py; \
     # pip2 install pytest; \
-    # system configuration update
-    ldconfig; \
-    update-ca-certificates; \
-    rm -rf /var/lib/apt/lists/*; \
-    pip3 install supervisor; \
     # final autoremove
     apt --purge autoremove -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold";
-
-# apt set keys for additional packages
-RUN \
-    # nodejs 12.x
-    curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash - && \
-    # google-chrome
-    rm -f /etc/apt/sources.list.d/google-chrome.list && \
-    echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list && \
-    wget -qO- --no-check-certificate https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - && \
-    mkdir -p /etc/opt/chrome/policies/managed && \
-    echo "{\"CommandLineFlagSecurityWarningsEnabled\": false}" > /etc/opt/chrome/policies/managed/managed_policies.json && \
-    # k6
-    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 379CE192D401AB61 && \
-    echo "deb https://dl.bintray.com/loadimpact/deb stable main" | sudo tee -a /etc/apt/sources.list && \
-    # update and install additional packages
-    apt update -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"  && \
-    apt install -q -y --allow-unauthenticated --fix-missing -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" \
-    nodejs \
-    google-chrome-stable \
-    k6
 
 # run finishing set up
 RUN update-alternatives --install /usr/bin/python python $(which $(readlink $(which python3))) 10; \
@@ -123,24 +92,10 @@ RUN update-alternatives --install /usr/bin/python python $(which $(readlink $(wh
     echo "fs.inotify.max_user_watches = 524288" | sudo tee -a /etc/sysctl.conf; \
     ln -s /usr/lib/jni/libopencv_java*.so /usr/lib/libopencv_java.so; \
     mkdir -p /tmp/.X11-unix && chmod 1777 /tmp/.X11-unix; \
-    mkdir -p /root/Projects
-
-# install AutoBDD
-ADD . /root/Projects/AutoBDD
-
-# setup AutoBDD
-RUN cd /root/Projects/AutoBDD && \
-    pip install -r requirement.txt && \
-    npm config set script-shell "/bin/bash" && \
-    npm cache clean --force && \
-    npm --loglevel=error install && \
-    npm run --loglevel=error test && \
-    npm run --loglevel=error clean && \
-    rm -rf /tmp/chrome_profile_* /tmp/download_* ./test-projects/autobdd-test/test-results
-
-# copy preset ubuntu system env
-COPY .docker/autobdd.root /
-RUN chmod +x /root/.bash_profile /root/autobdd-run.startup.sh /root/autobdd-dev.startup.sh 
+    ldconfig; \
+    update-ca-certificates; \
+    rm -rf /var/lib/apt/lists/*; \
+    pip3 install supervisor;
 
 # tini
 ARG TINI_VERSION=v0.19.0
