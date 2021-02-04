@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@hapi/hapi": "^20.1.0",
-    "ajv": "^7.0.3",
+    "ajv": "^6.12.6",
     "assert": "^2.0.0",
     "bottleneck": ">=2.19.5",
     "child_process": ">=1.0.2",

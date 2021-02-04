@@ -4,7 +4,7 @@
  * @param  {String}   templateFileName    Template file name to check against
  */
 
-const Ajv = require("ajv").default;
+const Ajv = require("ajv");
 const fs_session = require('../../libs/fs_session');
 const globSync = require("glob").sync;
 const getDownloadDir = require('../common/getDownloadDir');
