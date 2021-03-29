@@ -1,5 +1,6 @@
 const FrameworkPath = process.env.FrameworkPath || process.env.HOME + '/Projects/AutoBDD';
 var cucumberJsReporter = require('wdio-cucumberjs-json-reporter').default;
+const safeQuote = require(FrameworkPath + '/framework/libs/safequote');
 const framework_libs = require(FrameworkPath + '/framework/libs/framework_libs');
 const screen_session = require(FrameworkPath + '/framework/libs/screen_session');
 const browser_session = require(FrameworkPath + '/framework/libs/browser_session');
@@ -180,7 +181,6 @@ const frameworkHooks = {
   },
 
   afterScenario: function(uri, feature, scenario, result, sourceLocation) {
-    
     // scenario status
     if (result.status == 'passed') {
       currentScenarioStatus = 'Passed';
@@ -204,7 +204,10 @@ const frameworkHooks = {
     }
 
     // process tags for report attachement
-    const runlog_tag = framework_libs.getRunlogTag();
+    const module_path = feature.uri.split('features/')[0];
+    const feature_path = feature.uri.split('features/')[1].replace('/', '_');
+    const feature_runlog = safeQuote(process.env.RUNREPORT) ||  `${module_path}${feature_path}.log`;
+    const runlog_tag = framework_libs.getRunlogTag(feature_runlog);
     cucumberJsReporter.attach(runlog_tag, 'text/html');
 
     var scenarioBeginImage_tag, scenarioEndImage_tag, video_tag;
@@ -227,7 +230,9 @@ const frameworkHooks = {
     }
 
     // need to perform these steps before tear down RDP
-    changeBrowserZoom(100);
+    if (process.env.SSHHOST && process.env.SSHPORT) {
+      changeBrowserZoom(100);
+    }
 
     // need this pause for screenshots rename procss to finish
     browser.pause(1000);

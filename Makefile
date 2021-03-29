@@ -34,12 +34,18 @@ autobdd-image:
 	cd -
 autobdd-test:
 	cd ../autobdd-test && \
-	docker-compose run --rm autobdd-test-run "xvfb-runner.sh make test-all" || exit $?
+	make docker-run jobs="test-all" || exit $?
 	cd -
 autobdd-run-bash:
 	cd .docker && make autobdd-run-bash || exit $?
 autobdd-up:
 	cd .docker && make autobdd-up || exit $?
+autobdd-logs:
+	cd .docker && make autobdd-logs || exit $?
+autobdd-logs-f:
+	cd .docker && make autobdd-logs-f || exit $?
+autobdd-ssh:
+	ssh $$USER@localhost -p 2222 || exit $?
 autobdd-down:
 	cd .docker && make autobdd-down || exit $?
 autobdd-push:
